@@ -1,12 +1,81 @@
-import { Icon, EmptyState, SentimentBars, StatCard } from '../components.jsx';
+import { Icon, EmptyState, SentimentBars, StatCard } from "../components.jsx";
 
-const metric = (value) => value == null ? '—' : `${(Number(value) * 100).toFixed(2)}%`;
+const metric = (value) => (value == null ? "—" : `${(Number(value) * 100).toFixed(2)}%`);
 
 export default function DashboardPage({ data, counts, onGoUpload, onDownloadCsv, onDownloadPdf, downloading }) {
-  if (!data) return <EmptyState onUpload={onGoUpload}/>;
+  if (!data) return <EmptyState onUpload={onGoUpload} />;
   const total = counts.positive + counts.neutral + counts.negative;
-  const dominant = [['Positif', counts.positive], ['Netral', counts.neutral], ['Negatif', counts.negative]].sort((a, b) => b[1] - a[1])[0][0];
+  const dominant = [
+    ["Positif", counts.positive],
+    ["Netral", counts.neutral],
+    ["Negatif", counts.negative],
+  ].sort((a, b) => b[1] - a[1])[0][0];
   const metrics = data.model?.metrics || {};
 
-  return <section><div className="page-heading split"><div><span className="eyebrow">Ringkasan penelitian</span><h1>Dashboard Analisis</h1><p>Ikhtisar hasil klasifikasi dataset {data.filename || 'Na Willa'}.</p></div><div className="actions"><button className="button secondary" disabled={downloading} onClick={onDownloadCsv}><Icon name="download"/>Unduh CSV</button><button className="button primary" onClick={onDownloadPdf}><Icon name="file"/>Unduh Laporan PDF</button></div></div><div className="stats"><StatCard label="Total Data" value={(data.summary?.total_data ?? total).toLocaleString('id-ID')} note={`${data.summary?.total_dianalisis ?? total} berhasil dianalisis`}/><StatCard label="Sentimen Positif" value={counts.positive.toLocaleString('id-ID')} note={`${Math.round(counts.positive / Math.max(1, total) * 100)}% dari hasil`} tone="positive"/><StatCard label="Sentimen Netral" value={counts.neutral.toLocaleString('id-ID')} note={`${Math.round(counts.neutral / Math.max(1, total) * 100)}% dari hasil`} tone="neutral"/><StatCard label="Sentimen Negatif" value={counts.negative.toLocaleString('id-ID')} note={`${Math.round(counts.negative / Math.max(1, total) * 100)}% dari hasil`} tone="negative"/></div><div className="model-metrics card"><div><span>Accuracy</span><b>{metric(metrics.accuracy)}</b></div><div><span>Macro Precision</span><b>{metric(metrics.precision_macro)}</b></div><div><span>Macro Recall</span><b>{metric(metrics.recall_macro)}</b></div><div><span>Macro F1-score</span><b>{metric(metrics.macro_f1)}</b></div></div><div className="dashboard-grid"><article className="card panel"><div className="panel-title"><div><h2>Distribusi Sentimen</h2><p>Proporsi hasil klasifikasi seluruh ulasan valid</p></div></div><SentimentBars counts={counts}/></article><article className="card insight"><span className="eyebrow">Temuan utama</span><h2>Sentimen {dominant} mendominasi</h2><p>Kategori <b>{dominant.toLowerCase()}</b> memiliki jumlah terbanyak pada dataset ini. Gunakan halaman Visualisasi untuk melihat pola kata dan Hasil Klasifikasi untuk memeriksa setiap ulasan.</p><div className="model-badge">Model aktif <b>{data.model?.name || 'Support Vector Machine'}</b></div></article></div></section>;
+  return (
+    <section>
+      <div className="page-heading split">
+        <div>
+          <span className="eyebrow">Ringkasan penelitian</span>
+          <h1>Dashboard Analisis</h1>
+          <p>Ikhtisar hasil klasifikasi dataset {data.filename || "Na Willa"}.</p>
+        </div>
+        <div className="actions">
+          <button className="button secondary" disabled={downloading} onClick={onDownloadCsv}>
+            <Icon name="download" />
+            Unduh CSV
+          </button>
+          <button className="button primary" onClick={onDownloadPdf}>
+            <Icon name="file" />
+            Unduh Laporan PDF
+          </button>
+        </div>
+      </div>
+      <div className="stats">
+        <StatCard label="Total Data" value={(data.summary?.total_data ?? total).toLocaleString("id-ID")} note={`${data.summary?.total_dianalisis ?? total} berhasil dianalisis`} />
+        <StatCard label="Sentimen Positif" value={counts.positive.toLocaleString("id-ID")} note={`${Math.round((counts.positive / Math.max(1, total)) * 100)}% dari hasil`} tone="positive" />
+        <StatCard label="Sentimen Netral" value={counts.neutral.toLocaleString("id-ID")} note={`${Math.round((counts.neutral / Math.max(1, total)) * 100)}% dari hasil`} tone="neutral" />
+        <StatCard label="Sentimen Negatif" value={counts.negative.toLocaleString("id-ID")} note={`${Math.round((counts.negative / Math.max(1, total)) * 100)}% dari hasil`} tone="negative" />
+      </div>
+      <div className="model-metrics card">
+        <div>
+          <span>Accuracy</span>
+          <b>{metric(metrics.accuracy)}</b>
+        </div>
+        <div>
+          <span>Macro Precision</span>
+          <b>{metric(metrics.precision_macro)}</b>
+        </div>
+        <div>
+          <span>Macro Recall</span>
+          <b>{metric(metrics.recall_macro)}</b>
+        </div>
+        <div>
+          <span>Macro F1-score</span>
+          <b>{metric(metrics.macro_f1)}</b>
+        </div>
+      </div>
+      <div className="dashboard-grid">
+        <article className="card panel">
+          <div className="panel-title">
+            <div>
+              <h2>Distribusi Sentimen</h2>
+              <p>Proporsi hasil klasifikasi seluruh ulasan valid</p>
+            </div>
+          </div>
+          <SentimentBars counts={counts} />
+        </article>
+        <article className="card insight">
+          <span className="eyebrow">Temuan utama</span>
+          <h2>Sentimen {dominant} mendominasi</h2>
+          <p>
+            Kategori <b>{dominant.toLowerCase()}</b> memiliki jumlah terbanyak pada dataset ini. Gunakan halaman Visualisasi untuk melihat pola kata dan Hasil Klasifikasi untuk memeriksa setiap ulasan.
+          </p>
+          <div className="model-badge">
+            Model aktif <b>{data.model?.name || "Support Vector Machine"}</b>
+          </div>
+        </article>
+      </div>
+    </section>
+  );
 }
